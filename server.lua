@@ -1,14 +1,14 @@
 local ESX = exports["es_extended"]:getSharedObject()
--- CONFIGURATION
 local SENDER_JOB = 'police'
 local AFD_JOBS = { ['ambulance'] = true }
 local COOLDOWN_TIME = 30
 local cooldowns = {}
--- SONORAN CAD SETUP
 local SONORAN_COMM_ID = "CHANGE_ME"
 local SONORAN_API_KEY = "CHANGE_ME"
 local SERVER_PORT = GetConvar("sv_port", "30120")
-RegisterCommand('tonefd', function(source, args, rawCommand)
+RegisterNetEvent('dps_tone:requestTone')
+AddEventHandler('dps_tone:requestTone', function(coords, streetName, userMsg)
+    local source = source
     local xPlayer = ESX.GetPlayerFromId(source)
     if not xPlayer then return end
     if xPlayer.job.name == SENDER_JOB then
@@ -19,24 +19,19 @@ RegisterCommand('tonefd', function(source, args, rawCommand)
             return
         end
         cooldowns[source] = currentTime
-        -- Message Logic
-        local userMsg = table.concat(args, " ")
         local cadDesc = "DPS requesting immediate Fire/EMS assistance."
         local clientMsg = ""
-        if userMsg ~= "" then
+        if userMsg and userMsg ~= "" then
             cadDesc = cadDesc .. " | Details: " .. userMsg
             clientMsg = "\nInfo: " .. userMsg
         end
-        local coords = xPlayer.getCoords(true)
-        local streetName = GetStreetNameAtCoord(coords.x, coords.y, coords.z)
-        local locationInfo = GetStreetNameFromHashKey(streetName)
         local afdCount = 0
         local xPlayers = ESX.GetPlayers()
         for i=1, #xPlayers, 1 do
             local xTarget = ESX.GetPlayerFromId(xPlayers[i])
             if xTarget and AFD_JOBS[xTarget.job.name] then
                 afdCount = afdCount + 1
-                TriggerClientEvent('dps_tone:playTone', xPlayers[i], coords, locationInfo, clientMsg)
+                TriggerClientEvent('dps_tone:playTone', xPlayers[i], coords, streetName, clientMsg)
             end
         end
         if afdCount > 0 then
@@ -55,7 +50,7 @@ RegisterCommand('tonefd', function(source, args, rawCommand)
                     ["origin"] = "Radio",
                     ["status"] = "PENDING",
                     ["priority"] = 1,
-                    ["address"] = locationInfo,
+                    ["address"] = streetName,
                     ["title"] = "AFD TONE OUT",
                     ["code"] = "FIRE-1", 
                     ["description"] = cadDesc,
@@ -69,6 +64,6 @@ RegisterCommand('tonefd', function(source, args, rawCommand)
             end
         end, 'POST', json.encode(callData), { ['Content-Type'] = 'application/json' })
     else
-        xPlayer.showNotification("~r~Access Denied:~s~ DPS Only.")
+        xPlayer.showNotification("~r~Access Denied:~s~ Police Only.")
     end
 end)
