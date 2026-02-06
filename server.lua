@@ -6,6 +6,17 @@ local cooldowns = {}
 local SONORAN_COMM_ID = "CHANGE_ME"
 local SONORAN_API_KEY = "CHANGE_ME"
 local SERVER_PORT = GetConvar("sv_port", "30120")
+local UPDATE_URL = "https://raw.githubusercontent.com/YOUR_USERNAME/YOUR_REPO/main/version"
+Citizen.CreateThread(function()
+    local currentVersion = GetResourceMetadata(GetCurrentResourceName(), 'version', 0)
+    if currentVersion then
+        PerformHttpRequest(UPDATE_URL, function(err, text, headers)
+            if (text) and (text:gsub("%s+", "") ~= currentVersion:gsub("%s+", "")) then
+                print("\n^1[AHP-TONE] UPDATE AVAILABLE! Current: " .. currentVersion .. " | New: " .. text .. "^7\n")
+            end
+        end, "GET", "", {})
+    end
+end)
 RegisterNetEvent('dps_tone:requestTone')
 AddEventHandler('dps_tone:requestTone', function(coords, streetName, userMsg)
     local source = source
@@ -23,7 +34,7 @@ AddEventHandler('dps_tone:requestTone', function(coords, streetName, userMsg)
         local clientMsg = ""
         if userMsg and userMsg ~= "" then
             cadDesc = cadDesc .. " | Details: " .. userMsg
-            clientMsg = "\nInfo: " .. userMsg
+            clientMsg = "~n~Info: " .. userMsg 
         end
         local afdCount = 0
         local xPlayers = ESX.GetPlayers()
@@ -58,11 +69,7 @@ AddEventHandler('dps_tone:requestTone', function(coords, streetName, userMsg)
                 }
             }
         }
-        PerformHttpRequest("https://api.sonorancad.com/emergency/new_dispatch", function(err, text, headers)
-            if err ~= 200 then
-                print("[SonoranCAD] API Error: " .. tostring(err)) 
-            end
-        end, 'POST', json.encode(callData), { ['Content-Type'] = 'application/json' })
+        PerformHttpRequest("https://api.sonorancad.com/emergency/new_dispatch", function(err, text, headers) end, 'POST', json.encode(callData), { ['Content-Type'] = 'application/json' })
     else
         xPlayer.showNotification("~r~Access Denied:~s~ Police Only.")
     end
