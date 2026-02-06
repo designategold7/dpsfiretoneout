@@ -4,7 +4,12 @@ RegisterCommand('tonefd', function(source, args, rawCommand)
     local coords = GetEntityCoords(playerPed)
     local streetHash, crossingHash = GetStreetNameAtCoord(coords.x, coords.y, coords.z)
     local streetName = GetStreetNameFromHashKey(streetHash)
-    local message = table.concat(args, " ")
+    if not streetName or streetName == "" then streetName = "Unknown Location" end
+    local message = ""
+    local commandStart = string.find(rawCommand, " ")
+    if commandStart then
+        message = string.sub(rawCommand, commandStart + 1)
+    end
     TriggerServerEvent('dps_tone:requestTone', coords, streetName, message)
 end)
 RegisterNetEvent('dps_tone:playTone')
