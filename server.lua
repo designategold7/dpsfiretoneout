@@ -71,6 +71,6 @@ AddEventHandler('dps_tone:requestTone', function(coords, streetName, userMsg)
         }
         PerformHttpRequest("https://api.sonorancad.com/emergency/new_dispatch", function(err, text, headers) end, 'POST', json.encode(callData), { ['Content-Type'] = 'application/json' })
     else
-        xPlayer.showNotification("~r~Access Denied:~s~ Police Only.")
+        xPlayer.showNotification("~r~Access Denied:~s~ DPS Only.")
     end
 end)
