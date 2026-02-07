@@ -1,4 +1,7 @@
 local ESX = exports["es_extended"]:getSharedObject()
+TriggerEvent('chat:addSuggestion', '/tonefd', 'Tone out AFD to your location', {
+    { name="details", help="Optional: Incident details (e.g. MVA with Entrapment)" }
+})
 RegisterCommand('tonefd', function(source, args, rawCommand)
     local playerPed = PlayerPedId()
     local coords = GetEntityCoords(playerPed)
