@@ -1,5 +1,4 @@
 ### ASRP Fire Tone Out System
-### Author: designategold7
 1. CONFIGURATION (server.lua)
    - Set SONORAN_COMM_ID and SONORAN_API_KEY.
    - API Key requires "NEW_DISPATCH" permission.
